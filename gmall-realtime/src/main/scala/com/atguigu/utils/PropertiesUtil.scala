@@ -15,9 +15,9 @@ object PropertiesUtil {
   }
 
  //测试代码
-  def main(args: Array[String]): Unit = {
+ /* def main(args: Array[String]): Unit = {
     val properties: Properties = load("config.properties")
     println(properties.getProperty("kafka.broker.list"))
   }
-
+*/
 }

@@ -5,7 +5,9 @@ import com.atguigu.beam.StartUpLog
 import com.atguigu.constants.GmallConstants
 import com.atguigu.handler.DauHandler
 import com.atguigu.utils.MyKafkaUtil
+import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.phoenix.spark.toProductRDDFunctions
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
@@ -52,30 +54,41 @@ object DauApp {
     startUpLogDStream.cache()
 
     //TODO 5 进行批次间去重
-    val filterByRedisDStream: DStream[StartUpLog] = DauHandler.filterByRedis(startUpLogDStream)
+    val filterByRedisDStream: DStream[StartUpLog] = DauHandler.filterByRedis(startUpLogDStream,ssc.sparkContext)
     //优化:缓存多次使用的流
     filterByRedisDStream.cache()
+
+
+
+    //TODO 6  进行批次内去重
+    val filterByGroupDStream: DStream[StartUpLog] = DauHandler.filterByGroup(filterByRedisDStream)
+
 
     //--------------------------------测试_start---------------------------
     startUpLogDStream.count().print()
 
     filterByRedisDStream.count().print()
 
+    filterByGroupDStream.count().print()
+
     //--------------------------------测试_end-----------------------------
 
-    //TODO 6  进行批次内去重
-
     //TODO 7  将去重后的数据保存至Redis,为了下一批数据去重用
-    DauHandler.saveToRedis(filterByRedisDStream)
+    DauHandler.saveToRedis(filterByGroupDStream)
 
     //TODO 8 将去重后的明细数据保存到Hbase
+    filterByGroupDStream.foreachRDD(rdd => {
+      rdd.saveToPhoenix(
+        "GMALL210726_DAU",
+        Seq("MID", "UID", "APPID", "AREA", "OS", "CH", "TYPE", "VS", "LOGDATE", "LOGHOUR", "TS"),
+        HBaseConfiguration.create,
+        Some("hadoop102,hadoop103,hadoop104:2181"))
+    })
 
 
 
-
-
-    /*    //打印测试
-        val value: DStream[String] = kafkaDStream.mapPartitions(partition => {
+        //打印测试
+        /*val value: DStream[String] = kafkaDStream.mapPartitions(partition => {
           partition.map(record => {
             record.value()
           })
@@ -83,7 +96,7 @@ object DauApp {
 
         value.print()*/
 
-
+    //开启流,并阻塞线程
     ssc.start()
     ssc.awaitTermination()
 

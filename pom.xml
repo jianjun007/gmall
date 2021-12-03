@@ -9,8 +9,8 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>gmall_common</module>
-        <module>gmall_realtime</module>
+        <module>gmall-common</module>
+        <module>gmall-realtime</module>
     </modules>
 
     <properties>
