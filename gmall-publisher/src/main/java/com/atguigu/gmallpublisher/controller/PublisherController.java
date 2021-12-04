@@ -36,6 +36,9 @@ public class PublisherController {
         //获取日活总数数据
         Integer dauTotal = publisherService.getDauTotal(date);
 
+        Double gmvTotal = publisherService.getGmvTotal(date);
+
+
         HashMap<String, Object> dauMap = new HashMap<>();
         dauMap.put("id", "dau");
         dauMap.put("name", "新增日活");
@@ -47,8 +50,15 @@ public class PublisherController {
         devMap.put("name", "新增设备");
         devMap.put("value", 233);
 
+        //4.创建存放新增交易额的Map
+        HashMap<String, Object> gmvMap = new HashMap<>();
+        gmvMap.put("id", "order_amount");
+        gmvMap.put("name", "新增交易额");
+        gmvMap.put("value", gmvTotal);
+
         result.add(dauMap);
         result.add(devMap);
+        result.add(gmvMap);
 
 
         return JSONObject.toJSONString(result);
@@ -65,22 +75,32 @@ public class PublisherController {
     public String realtimeHours(@RequestParam("id") String id,
                                 @RequestParam("date") String date) {
 
+//1.获取昨天的日期
+        String yesterdayDate = LocalDate.parse(date).plusDays(-1).toString();
 
-        //获取昨天的日期
-        String yesterday = LocalDate.parse(date).plusDays(-1).toString();
+        Map todayMap =null;
+        Map yesterdayMap=null;
+
+        if ("order_amount".equals(id)){
+            //2.获取今天的分时数据
+            todayMap = publisherService.getGmvHourTotal(date);
+
+            //3.获取昨天的分时数据
+            yesterdayMap = publisherService.getGmvHourTotal(yesterdayDate);
+        }else if ("dau".equals(id)){
+            //2.获取今天的分时数据
+            todayMap = publisherService.getDauHourTotal(date);
+
+            //3.获取昨天的分时数据
+            yesterdayMap = publisherService.getDauHourTotal(yesterdayDate);
+        }
 
 
-        //获取今天日活数据
-        Map todayHourMap = publisherService.getDauTotalHours(date);
+        //4.创建存放结果数据的Map集合
+        HashMap<String, Map> result = new HashMap<>();
 
-        //获取昨天数据
-        Map yesterdayHourMap = publisherService.getDauTotalHours(yesterday);
-
-        //创建map集合用于存放结果数据
-        HashMap<String, Object> result = new HashMap<>();
-
-        result.put("yesterday", yesterdayHourMap);
-        result.put("today", todayHourMap);
+        result.put("yesterday", yesterdayMap);
+        result.put("today", todayMap);
 
         return JSONObject.toJSONString(result);
     }

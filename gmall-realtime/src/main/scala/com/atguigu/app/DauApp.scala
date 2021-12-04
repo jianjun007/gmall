@@ -1,7 +1,7 @@
 package com.atguigu.app
 
 import com.alibaba.fastjson.JSON
-import com.atguigu.beam.StartUpLog
+import com.atguigu.bean.StartUpLog
 import com.atguigu.constants.GmallConstants
 import com.atguigu.handler.DauHandler
 import com.atguigu.utils.MyKafkaUtil

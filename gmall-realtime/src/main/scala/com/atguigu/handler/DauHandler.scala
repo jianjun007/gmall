@@ -1,6 +1,6 @@
 package com.atguigu.handler
 
-import com.atguigu.beam.StartUpLog
+import com.atguigu.bean.StartUpLog
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD

@@ -1,4 +1,4 @@
-package com.atguigu.beam
+package com.atguigu.bean
 
 /**
  * @author JianJun

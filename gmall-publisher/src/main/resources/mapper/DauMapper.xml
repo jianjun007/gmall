@@ -3,11 +3,15 @@
 
 <mapper namespace="com.atguigu.gmallpublisher.mapper.DauMapper">
     <select id="selectDauTotal" resultType="Integer">
-        select count(*) from gmall210726_dau where  logdate=#{date}
+        select count(*)
+        from gmall210726_dau
+        where logdate = #{date}
     </select>
 
     <select id="selectDauTotalHourMap" resultMap="dauTotalHour">
-        select LOGHOUR lh, count(*) ct from gmall210726_dau where  LOGDATE=#{date}
+        select LOGHOUR lh, count(*) ct
+        from gmall210726_dau
+        where LOGDATE = #{date}
         group by LOGHOUR
     </select>
 
